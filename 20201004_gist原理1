@@ -1,0 +1,19 @@
+https://github.com/digoal/blog/blob/master/201706/20170627_01.md 9中应用场景
+
+gist的部分
+```
+create table t_gist (id int, pos point);
+insert into t_gist select generate_series(1,100000), point(round((random()*1000)::numeric, 2), round((random()*1000)::numeric, 2));
+select * from t_gist limit 10;
+create index idx_t_gist_1 on t_gist using gist(pos);
+explain (analyze,verbose,timing,costs,buffers) select * from t_gist where circle '((100,100) 10)'  @> pos;
+
+explain (analyze,verbose,timing,costs,buffers) select * from t_gist where circle '((100,100) 1)' @> pos order by pos <-> '(100,100)' limit 10;
+-- <-> 点之间的距离
+
+ create extension btree_gist;
+create table t_btree(id int, info text);
+insert into t_btree select generate_series(1,10000), md5(random()::text) ;
+create index idx_t_btree_2 on t_btree using gist(id);
+explain (analyze,verbose,timing,costs,buffers) select * from t_btree order by id <-> 100 limit 1;
+```
